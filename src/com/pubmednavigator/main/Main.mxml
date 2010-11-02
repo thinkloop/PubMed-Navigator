@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 
+		 xmlns:swiz = "http://swiz.swizframework.org"
+		 xmlns:t="com.thinkloop.flex4components.*"
+		 
+		 xmlns:search="com.pubmednavigator.search.*"
+		 width="100%" height="100%">
+
+<!--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	* * DECLARATIONS
+	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+	
+	<fx:Declarations>
+		
+		<!-- swiz -->
+		<swiz:Swiz id="searchSwizConfig" dispatcher="{this}">
+			
+			<!-- config -->
+			<swiz:config>
+				<swiz:SwizConfig
+					eventPackages="com.pubmednavigator.model.events,com.pubmednavigator.search.events" />
+			</swiz:config>
+			
+			<!-- beans -->
+			<swiz:beanProviders>
+				{[ModelBeans]}
+			</swiz:beanProviders>
+		</swiz:Swiz>
+	</fx:Declarations>
+	
+	
+<!--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	* * SCRIPT
+	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+	
+	<fx:Script>
+		<![CDATA[
+			import com.pubmednavigator.model.ModelBeans;
+		]]>
+	</fx:Script>
+	
+<!--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	* * VIEW
+	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+	
+	<s:layout>
+		<s:HorizontalLayout gap="0" />	
+	</s:layout>
+	
+	<s:VGroup width="100%" height="100%" gap="12">
+		<s:Group width="100%">
+			
+			<s:BitmapImage id="powerbygoogle" source="@Embed('/com/pubmednavigator/assets/images/PoweredByGoogle.png')" top="18" left="244" />
+			
+			<s:HGroup gap="0" paddingTop="26" paddingBottom="0" paddingLeft="18">
+				<s:Label text="PubMed" fontSize="30" color="#1a79d1" fontFamily="myriadprothick_embed" fontWeight="normal">
+					<s:filters>
+						<s:DropShadowFilter color="#313131" distance="1" alpha="0.4" blurX="4" blurY="2" strength="1" />
+					</s:filters>					
+				</s:Label>
+				<s:Label text="N" paddingTop="5" fontSize="31" color="#f3306c" fontFamily="copperplategothic_embed" fontWeight="bold">
+					<s:filters>
+						<s:DropShadowFilter color="#313131" distance="1" alpha="0.4" blurX="4" blurY="2" strength="1" />
+					</s:filters>					
+				</s:Label>
+				<s:Label text="avigator" paddingTop="8" fontSize="26" color="#f3306c" fontFamily="copperplategothic_embed" fontWeight="bold">
+					<s:filters>
+						<s:DropShadowFilter color="#313131" distance="1" alpha="0.4" blurX="4" blurY="2" strength="1" />
+					</s:filters>					
+				</s:Label>
+			</s:HGroup>
+			
+			
+			<s:Label id="emailLabel"
+					 text="@"
+					 height="30"
+					 right="29" top="21"
+					 textAlign="right" verticalAlign="middle"
+					 color="#FFFFFF"
+					 fontSize="30" fontWeight="bold"
+					 buttonMode="true"
+					 mouseOver="{emailLabel.text = 'pubmednavigator@pubmednavigator.com'; emailLabel.setStyle('color', '#000000'); emailLabel.setStyle('fontSize', '16'); emailLabel.setStyle('fontWeight', 'normal'); emailLabel.setStyle('textDecoration', 'underline'); glowFilter.alpha = 0;}"
+					 mouseOut="{emailLabel.text = '@'; emailLabel.setStyle('color', '#FFFFFF'); emailLabel.setStyle('fontSize', '30'); emailLabel.setStyle('fontWeight', 'bold'); emailLabel.setStyle('textDecoration', 'none'); glowFilter.alpha = 1;}"
+					 click="{navigateToURL(new URLRequest('mailto:pubmednavigator@pubmednavigator.com'))}">
+				
+				<s:filters>
+					<s:GlowFilter id="glowFilter" color="#000000" alpha="1" strength="1" />
+				</s:filters>
+			</s:Label>
+		</s:Group>
+		<!--
+		<s:Label id="slogan" text="The fastest way to search PubMed, is instantly." paddingLeft="18" paddingBottom="18" color="#313131" fontFamily="copperplategothic_embed" fontSize="10" fontWeight="bold" filters="{[dropShadow]}" />
+		-->
+		<search:Search id="search" width="100%" height="100%" />				
+	</s:VGroup>
+	
+	<t:VScrollBar id="vScrollBar" height="100%" viewport="{search.searchResultsScrollingGroup}" pageSize="100" />
+</s:Group>

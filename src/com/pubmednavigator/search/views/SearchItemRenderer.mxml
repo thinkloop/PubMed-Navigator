@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				width="100%"
+				autoDrawBackground="true"
+				fontFamily="myriadpro_embed">
+	
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.edit.SelectionState;
+			import flashx.textLayout.elements.DivElement;
+			import flashx.textLayout.elements.LinkElement;
+			import flashx.textLayout.elements.ParagraphElement;
+			import flashx.textLayout.elements.SpanElement;
+			import flashx.textLayout.elements.TextFlow;
+			import flashx.textLayout.events.FlowElementMouseEvent;
+			import flashx.textLayout.formats.TextLayoutFormat;
+			import flashx.textLayout.operations.ApplyFormatOperation;
+			import flashx.textLayout.operations.CompositeOperation;
+			
+			import mx.events.FlexEvent;
+			
+			protected var abstractLink:LinkElement;
+			protected var abstractSplitTextIndex:int;
+			protected var isLongSpanVisible:Boolean = false;
+			
+			override public function set data(value:Object):void {
+				if (!value) {
+					return;
+				}
+
+				super.data = value;
+				
+				var textflow:TextFlow = new TextFlow();
+				
+				// year / journal
+				if (value.year > 1700 || value.journalTitle.length > 0) {
+					var p1:ParagraphElement = new ParagraphElement();
+					
+					if(value.year > 1700) {
+						var s1:SpanElement = makeSpan('[' + value.year + '] ');
+						s1.color = 0x666666;
+						s1.fontSize = 13;
+						s1.fontWeight = 'bold';
+						p1.addChild(s1);	
+					}
+					if(value.journalTitle.length > 0) {
+						var s11:SpanElement = makeSpan(value.journalTitle.toLocaleUpperCase());
+						s11.color = 0x666666;
+						s11.fontSize = 13;
+						s11.fontWeight = 'normal';						
+						p1.addChild(s11);
+					}
+					
+					textflow.addChild(p1);
+				}
+				
+				// article title
+				var p2:ParagraphElement = new ParagraphElement();
+				
+				var a2:LinkElement = new LinkElement();
+				a2.href = value.url;
+				a2.target = '_blank'
+				
+				var s2:SpanElement = makeSpan(value.articleTitle);
+				s2.color = 0x1a79d1;
+				s2.fontSize = 20;
+				s2.fontWeight = 'bold';
+				s2.textDecoration = 'none';
+				
+				a2.addChild(s2);
+				p2.addChild(a2);
+				textflow.addChild(p2);	
+
+				// description
+				if (value.description.length > 0 && value.abstract.length <= 0) {
+					var p3:ParagraphElement = new ParagraphElement();
+					
+					var descriptionSpan:SpanElement = makeSpan(value.description);
+					descriptionSpan.fontFamily = 'tw_embed';
+					descriptionSpan.fontWeight = 'normal';
+					
+					if (value.abstract.length > 0) {
+						descriptionSpan.color = 0x666666;
+						descriptionSpan.fontSize = 12;
+					}
+					else {
+						descriptionSpan.color = 0x000000;
+						descriptionSpan.fontSize = 14;						
+					}					
+					
+					p3.addChild(descriptionSpan);
+					textflow.addChild(p3);
+				}
+				
+				// abstract
+				if (value.abstract.length > 0) {
+					var p4:ParagraphElement = new ParagraphElement();
+					
+					abstractLink = new LinkElement();					
+					abstractLink.addEventListener(FlowElementMouseEvent.CLICK, abstract_clickHandler);
+					
+					abstractSplitTextIndex = splitTextIndex(value.abstract);
+					
+					isLongSpanVisible = true;
+					toggleAbstractSpan();
+					
+					p4.addChild(abstractLink);
+					textflow.addChild(p4);
+				}			
+				
+				// authors
+				if (value.authors.length > 0) {
+					var p5:ParagraphElement = new ParagraphElement();
+					
+					var authorsSpan:SpanElement = makeSpan(value.authors);
+					authorsSpan.color = 0x666666;
+					authorsSpan.fontSize = 14;
+					authorsSpan.fontWeight = 'normal';
+					
+					p5.addChild(authorsSpan);
+					textflow.addChild(p5);	
+				}
+				
+				// url
+				if (value.authors.length <= 0) {
+					var p6:ParagraphElement = new ParagraphElement();
+					
+					var urlSpan:SpanElement = makeSpan(value.url);
+					urlSpan.color = 0x666666;
+					urlSpan.fontSize = 12;
+					urlSpan.fontWeight = 'normal';
+					
+					p6.addChild(urlSpan);
+					textflow.addChild(p6);	
+				}
+				
+				// set new textflow
+				richEditableText.textFlow = textflow;
+				
+				callLater(highlightKeywords);
+//trace('A: ' + data.id + ' - ' + abstract.maxDisplayedLines + ' - ' + abstract.isTruncated);	
+			}
+			
+			// make span
+			protected function makeSpan(val:String):SpanElement {	
+				var span:SpanElement = new SpanElement();
+				span.text = val;
+				return span;
+			}	
+			
+			// toggle abtract span
+			protected function toggleAbstractSpan():void {
+				var newSpan:SpanElement = new SpanElement();
+				newSpan.color = 0x000000;
+				newSpan.fontFamily = 'tw_embed';
+				newSpan.fontSize = 14;
+				newSpan.fontWeight = 'normal';
+				newSpan.textDecoration = 'none';
+				
+				if (isLongSpanVisible) {
+					newSpan.text = data.abstract.toString().substring(0, abstractSplitTextIndex);
+					if (abstractSplitTextIndex < data.abstract.length) {
+						newSpan.text += '...';
+					}
+					isLongSpanVisible = false;
+				}
+				else {
+					newSpan.text = data.abstract.toString();
+					isLongSpanVisible = true;
+				}
+				
+				abstractLink.replaceChildren(0, abstractLink.numChildren, newSpan);
+				
+				callLater(highlightKeywords);
+			}
+			
+			// split text
+			protected function splitTextIndex(text:String):int {
+				var approxMaxChars:int = 350;
+				
+				if (text.length <= approxMaxChars) {
+					return text.length;
+				}
+				
+				var index:int = text.indexOf(' ', approxMaxChars);
+				
+				if (index > 0) {
+					return index;
+				}
+				else {
+					return approxMaxChars;
+				}
+			}
+			
+
+			// highlight keywords
+			public function highlightKeywords():void {
+				var indexOfKeyword:int = 0;
+				var highlightFormat:TextLayoutFormat = new TextLayoutFormat();
+				highlightFormat.backgroundColor = 0XFFEE66;
+				
+				var compositeFormatOperation:CompositeOperation = new CompositeOperation();
+				
+				for each (var currentKeyword:String in data.keywords) {
+					while((indexOfKeyword = richEditableText.text.toLowerCase().indexOf(currentKeyword, indexOfKeyword)) >= 0) {
+						var operationState:SelectionState = new SelectionState(richEditableText.textFlow, indexOfKeyword, indexOfKeyword + currentKeyword.length);
+						
+						var formatOperation:ApplyFormatOperation = new ApplyFormatOperation(operationState,highlightFormat,null);
+						compositeFormatOperation.addOperation(formatOperation);
+						
+						/*
+						richEditableText.setFormatOfRange(highlightFormat, indexOfKeyword, indexOfKeyword + currentKeyword.length);
+						*/
+						indexOfKeyword++;
+					}
+				}
+				
+				var success:Boolean = compositeFormatOperation.doOperation();
+				if (success) {
+					richEditableText.textFlow.flowComposer.updateAllControllers();
+				}				
+			}
+			
+			protected function abstract_clickHandler(event:Event):void {
+				toggleAbstractSpan();
+			}
+			
+			/*
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+				highlightKeywords();
+			}
+			*/
+		]]>
+	</fx:Script>
+	
+	<!-- metadata -->
+	<fx:Metadata>
+		[SkinState("normal")]
+		[SkinState("hovered")]
+	</fx:Metadata>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="hovered" />
+	</s:states>
+	
+	<s:VGroup width="100%" height="100%" gap="10" paddingTop="5">
+				
+		<s:HGroup width="100%" height="100%" gap="7" paddingTop="7" paddingLeft="7" paddingRight="7" verticalAlign="middle">
+			
+			<!-- position -->
+			<s:Label text="{itemIndex + 1}" minWidth="40" paddingTop="8" textAlign="right" color="#eaeaea" color.hovered="{getStyle('focusColor')}" fontSize="40" fontWeight="normal" >
+				<s:filters>
+					<s:DropShadowFilter distance="1" color="#000000" alpha="0.3" blurX="2" blurY="2" strength="1" />
+				</s:filters>
+			</s:Label>
+			
+			<!-- search item -->
+			<s:RichEditableText id="richEditableText" width="100%" editable="false" selectable="true" />
+		</s:HGroup>
+		
+		<!-- line separator -->
+		<s:Line width="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="#aeaeae" />	
+			</s:stroke>	
+		</s:Line>
+	</s:VGroup>
+</s:ItemRenderer>

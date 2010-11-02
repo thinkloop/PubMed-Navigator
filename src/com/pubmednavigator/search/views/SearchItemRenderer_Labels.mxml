@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				width="100%"
+				autoDrawBackground="true"
+				fontFamily="myriadpro_embed">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			override public function set data(value:Object):void {
+				if (!value) {
+					return;
+				}
+
+				super.data = value;
+
+				articleTitle.text = data.articleTitle;
+				description.text = value.description;
+				abstract.text = value.abstract;
+				authors.text = value.authors;
+				journalTitle.text = value.journalTitle.toLocaleUpperCase();		
+				url.text = value.url;
+				yearLabel.text = '[' + value.year + ']';
+
+				authors.visible = authors.text.length > 0;
+				authors.includeInLayout = authors.text.length > 0;
+
+				if (value.year > 1700) {
+					yearLabel.visible = true;
+					yearLabel.includeInLayout = true;	
+				}
+				else {
+					yearLabel.visible = false;
+					yearLabel.includeInLayout = false;
+				}				
+				
+				if (journalTitle.text.length <= 0) {
+					journalTitle.visible = false;
+					journalTitle.includeInLayout = false;					
+				}
+				else {
+					journalTitle.visible = true;
+					journalTitle.includeInLayout = true;
+				}
+				
+				if (description.text.length <= 0) {
+					description.visible = false;
+					description.includeInLayout = false;
+				}
+				else {
+					description.visible = true;
+					description.includeInLayout = true;					
+				}
+				if (description.text.substr(0, 30) == abstract.text.substr(0, 30)) {
+					description.visible = false;
+					description.includeInLayout = false;
+				}
+				else {
+					description.visible = true;
+					description.includeInLayout = true;			
+				}				
+				
+				if (abstract.text.length <= 0) {
+					abstract.visible = false;
+					abstract.includeInLayout = false;
+				}
+				else {
+					abstract.visible = true;
+					abstract.includeInLayout = true;
+				}
+				
+				//trace('set data: ' + abstract.isTruncated);
+				if (abstract.visible) {
+					description.setStyle('color', '#666666');
+					description.setStyle('fontSize', '12');
+					url.visible = false;
+					url.includeInLayout = false;					
+				}
+				else {
+					description.setStyle('color', getStyle('color'));
+					description.setStyle('fontSize', '14');	
+					url.visible = true;
+					url.includeInLayout = true;						
+				}
+				
+				abstract.maxDisplayedLines = 3;
+//trace('A: ' + data.id + ' - ' + abstract.maxDisplayedLines + ' - ' + abstract.isTruncated);	
+					
+			}		
+
+			protected function articleTitle_clickHandler(event:MouseEvent):void {
+				navigateToURL(new URLRequest(data.url), '_blank')
+			}
+			
+			protected function abstract_clickHandler(event:MouseEvent):void {
+				abstract.maxDisplayedLines == 3 ? abstract.maxDisplayedLines = 25 : abstract.maxDisplayedLines = 3;
+			}
+
+			protected function abstract_Handler(event:FlexEvent):void
+			{
+//trace('B: ' + data.id + ' - ' + abstract.maxDisplayedLines + ' - ' + abstract.isTruncated);	
+
+				if (abstract.isTruncated || abstract.maxDisplayedLines > 3) {
+					abstract.toolTip = 'Abstract: click to expand...';
+					abstract.buttonMode = true;
+				}
+				else {
+					abstract.toolTip = 'Abstract';
+					abstract.buttonMode = false;
+				}
+			}
+
+		]]>
+	</fx:Script>
+	
+	<!-- metadata -->
+	<fx:Metadata>
+		[SkinState("normal")]
+		[SkinState("hovered")]
+	</fx:Metadata>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="hovered" />
+	</s:states>
+	
+	<s:VGroup width="100%" height="100%" gap="10" paddingTop="5">
+		
+		<s:HGroup width="100%" height="100%" gap="7" paddingTop="7" paddingLeft="7" paddingRight="7">
+			
+			<!-- position -->
+			<s:Label text="{itemIndex + 1}" minWidth="40" height="100%" paddingTop="8" textAlign="right" verticalAlign="middle" color="#eaeaea" color.hovered="{getStyle('focusColor')}" fontSize="40" fontWeight="normal" >
+				<s:filters>
+					<s:DropShadowFilter distance="1" color="#000000" alpha="0.3" blurX="2" blurY="2" strength="1" />
+				</s:filters>
+			</s:Label>
+			
+			<!-- search item -->
+			<s:VGroup width="100%">
+				<s:HGroup width="100%">
+					<s:Label id="yearLabel" color="#313131" fontSize="11" fontWeight="bold" toolTip="Year Published" />
+					<s:Label id="journalTitle" color="#666666" width="100%" fontSize="11" fontWeight="normal" toolTip="Journal Name" />
+				</s:HGroup>
+				<s:Label id="articleTitle" width="100%" color="#1a79d1" fontSize="20" fontWeight="bold" buttonMode="true" textDecoration="none" click="articleTitle_clickHandler(event)" toolTip="Click to load full article in a new window..." />
+				<s:Label id="description" width="100%" fontSize="14" fontWeight="normal" toolTip="Short Description" />
+				<s:Label id="abstract" width="100%" fontSize="14" fontWeight="normal" maxDisplayedLines="3" click="abstract_clickHandler(event)" updateComplete="abstract_Handler(event)" toolTip="Abstract" />
+				<s:Label id="authors" color="#666666" width="100%" fontSize="14" fontWeight="normal" toolTip="Author(s)" />
+				<s:Label id="url" width="100%" color="#666666" fontSize="12" click="articleTitle_clickHandler(event)" toolTip="Link to full article on PubMed" />
+			</s:VGroup>	
+		</s:HGroup>
+		
+		<!-- line separator -->
+		<s:Line width="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="#aeaeae" />	
+			</s:stroke>	
+		</s:Line>
+	</s:VGroup>
+</s:ItemRenderer>

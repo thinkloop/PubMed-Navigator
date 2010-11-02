@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:swiz = "http://swiz.swizframework.org"
+		 xmlns:t="com.thinkloop.flex4components.*"
+
+		 width="100%" height="100%">
+
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	* * DECLARATIONS
+	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+
+	<fx:Declarations>
+
+		<!-- swiz -->
+		<swiz:Swiz id="searchSwizConfig" dispatcher="{this}">
+
+			<!-- config -->
+			<swiz:config>
+				<swiz:SwizConfig viewPackages="com.pubmednavigator.search.views" />
+			</swiz:config>
+
+			<!-- beans -->
+			<swiz:beanProviders>
+				{[SearchBeans]}
+			</swiz:beanProviders>
+		</swiz:Swiz>
+	</fx:Declarations>
+
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	* * SCRIPT
+	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+
+	<fx:Script>
+		<![CDATA[
+			import com.pubmednavigator.search.business.SearchBeans;
+			import com.pubmednavigator.search.business.SearchPresentation;
+			import com.pubmednavigator.search.events.SubmitEvent;
+
+			[Inject] [Bindable] public var presentation:SearchPresentation;
+		]]>
+	</fx:Script>
+
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	* * VIEW
+	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+
+	<s:layout>
+		<s:VerticalLayout gap="0" />
+	</s:layout>
+	
+	<t:SearchBox id="searchBox"
+				 left="0" right="0" width="100%" height="40"
+				 skinClass="com.pubmednavigator.search.views.skins.SearchBoxSkin"
+				 
+				 text="@{presentation.searchBoxText}"
+				 isSearching="{presentation.isSearching}"
+				 isTextTyped="@{presentation.isTextTyped}"
+				 
+				 submit="{presentation.dispatchSubmitEvent()}" />
+	
+	<s:Group id="searchResultsScrollingGroup" 
+			 width="100%" height="100%" 
+			 clipAndEnableScrolling="true"
+			 visible="{presentation.isVisibleSearchResult}" includeInLayout="{presentation.isVisibleSearchResult}">
+		
+		<s:SkinnableDataContainer id="searchResults" 
+								  width="100%" 
+								  itemRenderer="com.pubmednavigator.search.views.SearchItemRenderer">
+			
+			<s:layout>
+				<s:VerticalLayout id="verticalLayout" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0" gap="0" useVirtualLayout="false" />
+			</s:layout>
+			
+			<s:dataProvider>
+				{presentation.pubmedItems}
+			</s:dataProvider>
+		</s:SkinnableDataContainer>
+	</s:Group>
+	
+	<s:RichText id="WelcomeText"
+			 width="100%" maxWidth="530" lineHeight="35" 
+			 paddingTop="25" paddingLeft="25" paddingRight="25"
+			 textAlign="left" verticalAlign="top"
+			 fontSize="16"
+			 visible="{!presentation.isTextTyped}" includeInLayout="{!presentation.isTextTyped}">
+		
+		<s:span fontSize="24">PubMed Navigator</s:span> is the <s:span fontSize="24">fastest</s:span> way to search PubMed. 
+		
+		Initial results appear <s:span fontSize="24">instantly</s:span>, then <s:span fontSize="24">deeper</s:span> information <s:span fontSize="24">silently loads</s:span> in the background. <!-- to <s:span fontSize="24">enrich your results</s:span> a moment later.-->
+
+		To open the <s:span fontSize="24">full PubMed</s:span> article, click on an article title.
+		
+		To expand an abstract, click on the abstract text.
+		
+		<s:br lineHeight="10" />
+		
+		<s:span fontWeight="bold" fontSize="20">Type your search terms in the search box above.</s:span>			
+	</s:RichText>
+	
+	<s:RichText id="NoResult"
+				width="100%" maxWidth="550" lineHeight="40"
+				paddingTop="25" paddingLeft="25" paddingRight="25"
+				textAlign="left" verticalAlign="top"
+				fontSize="16"
+				visible="{presentation.isVisibleNoResult}" includeInLayout="{presentation.isVisibleNoResult}">
+		
+		<s:p>
+			<s:span fontSize="24">No Results</s:span>
+		</s:p>			
+	</s:RichText>
+</s:Group>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 
+		 xmlns:t="com.thinkloop.flex4components.*"
+		 width="100%" height="100%">
+
+	<fx:Script>
+		<![CDATA[
+			import be.boulevart.google.ajaxapi.search.GoogleSearchResult;
+			import be.boulevart.google.ajaxapi.search.web.GoogleWebSearch;
+			import be.boulevart.google.ajaxapi.search.web.data.GoogleWebItem;
+			import be.boulevart.google.events.GoogleAPIErrorEvent;
+			import be.boulevart.google.events.GoogleApiEvent;
+			
+			import flashx.textLayout.conversion.TextConverter;
+			import flashx.textLayout.elements.DivElement;
+			import flashx.textLayout.elements.LinkElement;
+			import flashx.textLayout.elements.ParagraphElement;
+			import flashx.textLayout.elements.SpanElement;
+			import flashx.textLayout.elements.TextFlow;
+			
+			import mx.collections.ArrayCollection;
+			
+			import spark.components.List;
+			import spark.utils.TextFlowUtil;
+			
+			[Bindable] public var googleWebItems:ArrayCollection = new ArrayCollection();
+			[Bindable] public var lastSearchPhrase:String = '';
+			[Bindable] public var newSearchPhrase:String = '';
+			[Bindable] public var isCurrentlySearching:Boolean = false;
+			
+			public function searchGoogle(pageIndex:int = 0):void {
+				
+				// if already in the middle of a search, wait untill it finishes before starting a new one
+				if (isCurrentlySearching) {
+trace('X already search');
+					return;
+				}
+				
+				newSearchPhrase = generateSearchPhrase(searchBox.text);
+				isCurrentlySearching = true;
+				
+				// search google
+				var googleWebSearch:GoogleWebSearch = new GoogleWebSearch();
+//trace('pageIndex:' + pageIndex);			
+				googleWebSearch.search(newSearchPhrase, pageIndex, 'en');
+				googleWebSearch.addEventListener(GoogleApiEvent.WEB_SEARCH_RESULT,onWebResults) ;
+				googleWebSearch.addEventListener(GoogleAPIErrorEvent.API_ERROR,onAPIError);
+			}
+			
+			private function onWebResults(e:GoogleApiEvent):void {
+				
+				isCurrentlySearching = false;
+				
+				var googleSearchResult:GoogleSearchResult = e.data as GoogleSearchResult
+				var items:Array = [];
+				
+				var finalContentString:String = '';
+				
+				// if search phrase is different than before, reset recordset before adding results
+trace(newSearchPhrase + ' != ' + lastSearchPhrase);				
+				if(newSearchPhrase != lastSearchPhrase) {
+					searchResults.textFlow = new TextFlow();
+				}
+				var searchResultsTextFlow:TextFlow = searchResults.textFlow;
+				
+				for each (var googleWebItem:GoogleWebItem in googleSearchResult.results) {
+					/**/
+					var div:DivElement = new DivElement();
+					
+					var titleTextFlow:TextFlow = TextConverter.importToFlow('<a href="' + googleWebItem.unescapedUrl + '">' + googleWebItem.title + '</a>', TextConverter.TEXT_FIELD_HTML_FORMAT);
+					var contentTextFlow:TextFlow = TextConverter.importToFlow(googleWebItem.content, TextConverter.TEXT_FIELD_HTML_FORMAT);
+					
+					var titleParagraph:ParagraphElement = titleTextFlow.mxmlChildren[0] as ParagraphElement;
+					titleParagraph.fontSize = 18;
+					
+					div.addChild(titleParagraph);
+					div.addChild(contentTextFlow.mxmlChildren[0]);
+					div.paddingBottom = 80;
+					div.backgroundColor = 0xff0000;
+					
+					searchResultsTextFlow.addChild(div);
+					
+					/*
+					finalContentString += 
+										'<div style="border:1px solid black"><p paragraphSpaceAfter="40">' + 
+											googleWebItem.title + 
+										'</p></div>' +
+										'<div><p>' + 
+											googleWebItem.content + 
+										'</p></div><hr />';
+					*/
+			
+					
+				}
+				
+				lastSearchPhrase = newSearchPhrase;				
+				if (generateSearchPhrase(searchBox.text) != lastSearchPhrase) {
+					searchGoogle(0);
+				}
+				else if (googleSearchResult.currentPageIndex < googleSearchResult.numPages - 1) {
+					searchGoogle(((googleSearchResult.currentPageIndex + 1) * 8));
+				}
+				
+				//var importflow:TextFlow = TextConverter.importToFlow(finalContentString, TextConverter.TEXT_FIELD_HTML_FORMAT);
+				//var exportFlow:String = TextFlowUtil.export(importflow);
+				
+				//searchResults.textFlow = importflow;
+				
+				//searchResults.textFlow = TextFlowUtil.importFromString(replaceBWithSpans(finalContentString));
+				
+				/*
+//trace(newSearchPhrase + ' - ' + (newSearchPhrase != lastSearchPhrase));		
+				if(newSearchPhrase != lastSearchPhrase) {
+					googleWebItems.source = items;
+					lastSearchPhrase = newSearchPhrase;
+				}
+				else {
+					googleWebItems.addAll(new ArrayCollection(items));
+				}
+				
+				
+trace(googleSearchResult.currentPageIndex + ' < ' + googleSearchResult.numPages + '(' + ((googleSearchResult.currentPageIndex + 1) * 8) + ')');	
+				if (googleSearchResult.currentPageIndex < googleSearchResult.numPages - 1) {
+					searchGoogle(((googleSearchResult.currentPageIndex + 1) * 8));
+				}
+				*/
+			}			
+			
+			private function onAPIError(evt:GoogleAPIErrorEvent):void {
+				isCurrentlySearching = false;
+				trace("An API error has occured: " + evt.responseDetails, "responseStatus was: " + evt.responseStatus);
+			}
+			
+			public function generateSearchPhrase(searchTerms:String):String {
+				return searchTerms + ' site:http://www.ncbi.nlm.nih.gov/pubmed';
+			}
+		]]>
+	</fx:Script>
+	
+	<s:layout>
+		<s:VerticalLayout paddingTop="{width * 0.01}" paddingBottom="{width * 0.01}" paddingLeft="{width * 0.01}" paddingRight="{width * 0.01}" />
+	</s:layout>
+	
+	<t:SearchBox id="searchBox" 
+				 width="100%" height="6%" minHeight="40"
+				 textChanged="searchGoogle()"
+				 submit="searchGoogle()" />
+	
+	<s:Scroller width="100%" height="100%">
+		
+	
+	<s:RichEditableText id="searchResults"
+						width="100%" height="100%" clipAndEnableScrolling="true" />
+	</s:Scroller>
+	<!--
+	<s:List id="searchResults"
+			dataProvider="{googleWebItems}"
+			width="100%" height="100%"
+			itemRenderer="com.pubmednavigator.search.SearchItemRenderer" />
+	-->
+</s:Group>

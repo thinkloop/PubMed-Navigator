@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SparkSkin 
+	xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:fb="http://ns.adobe.com/flashbuilder/2009"
+	xmlns:t="com.thinkloop.flex4components.*"
+	
+	width="100%" height="100%"
+	blendMode="normal">
+	
+	<!--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	* * META DATA
+	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+	
+	<fx:Metadata>
+		<![CDATA[ 
+			[HostComponent("com.thinkloop.flex4components.SearchBox")]
+		]]>
+	</fx:Metadata>
+	
+	<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	* * PUBLIC PROPERTIES  
+	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+	
+	<fx:Declarations>
+		<fx:int id="fontSize">6</fx:int>
+		<s:Sine id="myEaser" easeInFraction="0.1" />
+	</fx:Declarations>
+	
+	<!--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	* * EVENTS
+	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+	
+	<s:resize>
+		<![CDATA[			
+		fontSize = Math.max(6, int(0.55 * height));
+		searchButton.setStyle('fontSize', fontSize);
+		textInput.setStyle('fontSize', fontSize);
+		clearButton.setStyle('fontSize', Math.max(6, int(0.65 * height)));		
+		]]>
+	</s:resize>
+	
+	<!--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	* * SCRIPT
+	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+	
+	<fx:Script>
+		<![CDATA[
+			override protected function stateChanged(oldState:String, newState:String, recursive:Boolean):void {				
+				searchButton.searchBoxSkinState = newState;
+				searchButton.invalidateSkinState();
+			}
+		]]>
+	</fx:Script>
+	
+	<!--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	* * STATES
+	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+	
+	<s:states>
+		<s:State name="normal" /> <!-- empty text box -->
+		<s:State name="active" /> <!-- text in text box -->
+		<s:State name="searching" /> <!-- searching text in text box -->
+		<s:State name="disabled" /> <!-- disabled -->
+	</s:states>
+	
+	<s:transitions>
+		<s:Transition fromState="*" toState="searching">
+			<s:Parallel duration="750">
+				<s:AnimateColor targets="{[searchButton]}" repeatBehavior="reverse" repeatCount="1" easer="{myEaser}" />
+			</s:Parallel>
+		</s:Transition>			
+		<s:Transition toState="active">
+			<s:Parallel duration="350">
+				<s:AnimateColor targets="{[searchButton]}" easer="{myEaser}" />
+			</s:Parallel>
+		</s:Transition>
+		<s:Transition fromState="active">
+			<s:Parallel duration="350">
+				<s:AnimateColor targets="{[searchButton]}" easer="{myEaser}" />
+			</s:Parallel>
+		</s:Transition>		
+	</s:transitions>
+	
+	<!--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	* * VIEW
+	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+	
+	<!-- bg -->
+	<s:Rect top="0" bottom="0" left="0" right="0">
+		<s:fill>
+			<s:SolidColor id="bgFill" color="{getStyle('contentBackgroundColor')}" />
+		</s:fill>
+	</s:Rect>
+	
+	
+	<!-- search button and text input -->
+	<s:HGroup width="100%" height="100%" gap="0">
+		
+		<t:SearchBoxButton id="searchButton"
+						   label="X"
+						   height="100%"
+						   fontWeight="bold"
+						   buttonMode="true">
+			
+			<t:creationComplete>
+				<![CDATA[
+					searchButton.setStyle('borderAlpha', 0);
+				]]>
+			</t:creationComplete>
+		</t:SearchBoxButton>
+		
+		<s:TextInput id="textInput"
+					 width="100%" height="100%"
+					 textAlign="left"
+					 textIndent="{int(fontSize * 0.5)}" alpha="1"
+					 borderAlpha="0" />
+		
+		<!-- clear button -->
+		<t:SearchBoxButton id="clearButton"
+						   label="x"
+						   width="{this.height}" height="100%"
+		 		 		   visible="{hostComponent.isTextTyped}" includeInLayout="{hostComponent.isTextTyped}"
+						   fontWeight="bold"
+						   buttonMode="true">
+			
+			<t:creationComplete>
+				<![CDATA[
+					clearButton.setStyle('backgroundAlpha', 0);
+					clearButton.setStyle('borderAlpha', 0);
+				]]>
+			</t:creationComplete>
+				
+		</t:SearchBoxButton>		
+	</s:HGroup>
+	
+	<!-- borders -->
+	<s:Line top="0" left="0" right="0" visible="{getStyle('borderVisible')}">
+		<s:stroke>
+			<s:SolidColorStroke id="borderStrokeTop" color="{getStyle('borderColor')}" color.active="{getStyle('symbolColor')}" color.searching="{getStyle('symbolColor')}" alpha="{getStyle('borderAlpha')}" />
+		</s:stroke>		
+	</s:Line>
+	<s:Line bottom="0" left="0" right="0" visible="{getStyle('borderVisible')}">
+		<s:stroke>
+			<s:SolidColorStroke id="borderStrokeBottom" color="{getStyle('borderColor')}" color.active="{getStyle('symbolColor')}" color.searching="{getStyle('symbolColor')}" alpha="{getStyle('borderAlpha')}" />
+		</s:stroke>		
+	</s:Line>
+	<s:Line left="{searchButton.width - 1}" top="0" bottom="0" visible="{getStyle('borderVisible')}">
+		<s:stroke>
+			<s:SolidColorStroke id="borderStrokeSeparator" color="{getStyle('borderColor')}" color.active="{getStyle('symbolColor')}" color.searching="{getStyle('symbolColor')}" alpha="{getStyle('borderAlpha')}" />
+		</s:stroke>		
+	</s:Line>
+</s:SparkSkin>
