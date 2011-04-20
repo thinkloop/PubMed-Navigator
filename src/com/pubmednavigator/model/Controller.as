@@ -2,30 +2,40 @@ package com.pubmednavigator.model {
 
 public class Controller {
 	
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// * DEPENDENCIES
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+//--------------------------------------------------------------------------
+//
+// DEPENDENCIES
+//
+//--------------------------------------------------------------------------
 	
 	[Inject] public var model:Model;
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// * CONSTRUCTOR
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+//--------------------------------------------------------------------------
+//
+// CONSTRUCTOR
+//
+//--------------------------------------------------------------------------
 
 	public function Controller() {
 	}
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// * MEDIATORS
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *	
+//--------------------------------------------------------------------------
+//
+// MEDIATORS
+//
+//--------------------------------------------------------------------------	
 
 	[Mediate(event="SubmitEvent.SUBMIT", properties="searchText, cleanSearchText, keywords")]
 	public function search(searchText:String, cleanSearchText:String, keywords:Array):void {
-		model.search(cleanSearchText);
+		model.searchText = cleanSearchText;
+		model.search();
 	}
 	
-	[Mediate(event="SearchEvent.SEARCH_COMPLETE", properties="searchText,pageIndex")]
-	public function fetch(searchText:String, pageIndex:int):void {	
-		model.fetch();
+	[Mediate(event="SearchEvent.SEARCH_COMPLETE", properties="searchText,pageIndex,maxPageIndex")]
+	public function fetch(searchText:String, pageIndex:int, maxPageIndex:int):void {
+		if (pageIndex >= Math.min(5, maxPageIndex)) {
+			model.fetch();
+		}
+		model.search();	
 	}
 }}

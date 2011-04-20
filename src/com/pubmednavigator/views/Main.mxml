@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:swiz = "http://swiz.swizframework.org"
+		 xmlns:t="com.thinkloop.flex4.components.*"
+		 xmlns:header="com.pubmednavigator.spark.header.*"
+		 xmlns:views="com.pubmednavigator.views.*"
+		 
+		 width="100%" height="100%">
+
+<!--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	* * DECLARATIONS
+	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+	
+	<fx:Declarations>
+		
+		<!-- swiz -->
+		<swiz:Swiz id="searchSwizConfig" dispatcher="{this}">
+			
+			<!-- config -->
+			<swiz:config>
+				<swiz:SwizConfig
+					eventPackages="com.pubmednavigator.events"
+					viewPackages="com.pubmednavigator.views" />
+			</swiz:config>
+			
+			<!-- beans -->
+			<swiz:beanProviders>
+				{[Beans]}
+			</swiz:beanProviders>
+		</swiz:Swiz>
+	</fx:Declarations>	
+	
+<!--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	* * SCRIPT
+	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+	
+	<fx:Script>
+		<![CDATA[
+			import com.pubmednavigator.beans.Beans;
+		]]>
+	</fx:Script>
+	
+<!--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	* * VIEW
+	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+	
+	<s:layout>
+		<s:HorizontalLayout gap="0" />	
+	</s:layout>
+	
+	<s:VGroup width="100%" height="100%" gap="12">		
+		<header:Header width="100%" />
+		<views:Search id="search" width="100%" height="100%" />				
+	</s:VGroup>
+	
+	<t:VScrollBar id="vScrollBar" height="100%" viewport="{search.searchResultsScrollingGroup}" pageSize="100" />
+</s:Group>

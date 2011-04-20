@@ -3,7 +3,7 @@
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
 		 xmlns:s="library://ns.adobe.com/flex/spark"
 		 
-		 xmlns:t="com.thinkloop.flex4components.*"
+		 xmlns:t="com.thinkloop.flex4.components.*"
 		 width="100%" height="100%">
 
 	<fx:Script>

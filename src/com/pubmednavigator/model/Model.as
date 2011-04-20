@@ -1,9 +1,9 @@
 package com.pubmednavigator.model {
 	
-import com.pubmednavigator.model.fetch.FetchService;
-import com.pubmednavigator.model.pubmed.Pubmed;
-import com.pubmednavigator.model.search.SearchService;
-import com.thinkloop.flex4components.CachingArrayCollection;
+import com.pubmednavigator.model.managers.FetchManager;
+import com.pubmednavigator.model.objects.Pubmed;
+import com.pubmednavigator.model.managers.SearchManager;
+import com.thinkloop.flex4.collections.CachingArrayCollection;
 
 import flash.events.IEventDispatcher;
 
@@ -13,22 +13,28 @@ import mx.collections.IList;
 
 public class Model {
 	
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// * CONSTANTS
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+//--------------------------------------------------------------------------
+//
+// CONSTANTS
+//
+//--------------------------------------------------------------------------
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// * DEPENDENCIES
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+//--------------------------------------------------------------------------
+//
+// DEPENDENCIES
+//
+//--------------------------------------------------------------------------
 	
-	[Inject] public var searchService:SearchService;
-	[Inject] public var fetchService:FetchService;		
+	[Inject] public var searchService:SearchManager;
+	[Inject] public var fetchService:FetchManager;		
 	[Dispatcher] public var dispatcher:IEventDispatcher;
 	
 	
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// * CONSTRUCTOR
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+//--------------------------------------------------------------------------
+//
+// CONSTRUCTOR
+//
+//--------------------------------------------------------------------------
 	
 	public function Model() {
 	}
@@ -44,18 +50,23 @@ public class Model {
 		fetchService.pubmedItems = searchService.pubmedItems;
 	}
 	
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// * PROPERTIES
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *	
+//--------------------------------------------------------------------------
+//
+// PROPERTIES
+//
+//--------------------------------------------------------------------------	
 	
 	[Bindable] public var pubmedItems:CachingArrayCollection;
+	[Bindable] public var searchText:String;
 	
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// * METHODS
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+//--------------------------------------------------------------------------
+//
+// METHODS
+//
+//--------------------------------------------------------------------------
 	
 	// search
-	public function search(searchText:String):void {
+	public function search():void {
 		searchService.search(searchText);
 	}
 	

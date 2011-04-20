@@ -7,18 +7,22 @@
 				   xmlns:google="be.boulevart.google.ajaxapi.search.web.*"
 				   
 				   xmlns:model="com.pubmednavigator.model.*"
-				   xmlns:fetch="com.pubmednavigator.model.fetch.*"
-				   xmlns:search="com.pubmednavigator.model.search.*">
+				   xmlns:managers="com.pubmednavigator.model.managers.*"
+				   xmlns:delegates="com.pubmednavigator.model.delegates.*"
+				   xmlns:presenters="com.pubmednavigator.www.presenters.*" xmlns:presenters1="com.pubmednavigator.presenters.*">
 	
 	<!-- model -->
 	<model:Model />
 	<model:Controller />
 	
 	<!-- services -->
-	<search:SearchService />
-	<fetch:FetchService />
+	<managers:SearchManager />
+	<managers:FetchManager />
 	
 	<!-- delegates -->
 	<google:GoogleWebSearch />
-	<fetch:FetchDelegate />
+	<delegates:FetchDelegate />
+	
+	<!-- presenters -->
+	<presenters1:SearchPresenter />
 </swiz:BeanProvider>

@@ -1,8 +1,8 @@
-package com.pubmednavigator.model.fetch {
+package com.pubmednavigator.model.delegates {
 
-import com.pubmednavigator.model.pubmed.Pubmed;
-import com.thinkloop.flex4components.CachingArrayCollection;
-import com.thinkloop.flex4components.StringUtil;
+import com.pubmednavigator.model.objects.Pubmed;
+import com.thinkloop.flex4.collections.CachingArrayCollection;
+import com.thinkloop.flex4.utils.StringUtil;
 
 import flash.events.Event;
 

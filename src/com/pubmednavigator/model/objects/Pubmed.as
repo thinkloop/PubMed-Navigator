@@ -1,4 +1,4 @@
-package com.pubmednavigator.model.pubmed {
+package com.pubmednavigator.model.objects {
 	
 import com.adobe.fiber.core.model_internal;
 import com.adobe.fiber.services.IFiberManagingService;
@@ -17,17 +17,21 @@ import mx.events.PropertyChangeEvent;
 [Bindable]
 public class Pubmed {
 	
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// * CONSTRUCTOR
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+//--------------------------------------------------------------------------
+//
+// CONSTRUCTOR
+//
+//--------------------------------------------------------------------------
 
 	public function Pubmed() {
 		
 	}
 	
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// * PROPERTIES
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *	
+//--------------------------------------------------------------------------
+//
+// PROPERTIES
+//
+//--------------------------------------------------------------------------	
 	
 	public var id:int = 0;
 	public var articleTitle:String = '';

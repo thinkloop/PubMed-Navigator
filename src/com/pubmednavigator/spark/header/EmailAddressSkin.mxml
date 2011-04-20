@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SparkSkin 
+			 xmlns:fb="http://ns.adobe.com/flashbuilder/2009"
+			 xmlns:fx="http://ns.adobe.com/mxml/2009"
+			 xmlns:s="library://ns.adobe.com/flex/spark"
+			 alpha.disabled="0.5">
+
+<!--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	* * META DATA
+	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+	
+	<fx:Metadata>
+		<![CDATA[ 
+			[HostComponent("spark.components.Button")]
+		]]>
+	</fx:Metadata>
+	
+<!--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	* * PROPERTIES  
+	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+	
+	<fx:Declarations>
+		<fx:String id="upColor">0xffffff</fx:String>
+		<fx:String id="overColor">0x000000</fx:String>
+		<fx:String id="downColor">0x313131</fx:String>
+	</fx:Declarations>
+	
+<!--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	* * STATES
+	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+	
+	<s:states>
+		<s:State name="up" />
+		<s:State name="over" />
+		<s:State name="down" />
+		<s:State name="disabled" />
+	</s:states>
+	
+<!--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	* * VIEW
+	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+	
+	<s:Label id="labelDisplay"
+			 text="@"
+			 height="30"
+			 horizontalCenter="0" verticalCenter="0"
+			 textAlign="right" verticalAlign="middle"
+			 maxDisplayedLines="1"
+			 
+			 fontSize="30" fontSize.over="15" fontSize.down="15"
+			 fontWeight="bold" fontWeight.over="normal" fontWeight.down="normal"
+			 textDecoration="none" textDecoration.over="underline" textDecoration.down="underline"
+			 color="{upColor}" color.over="{overColor}" color.down="{downColor}">		
+		
+		<s:filters.up>
+			<s:GlowFilter id="glowFilter" color="#000000" alpha="1" strength="1" />
+		</s:filters.up>
+	</s:Label>
+</s:SparkSkin>

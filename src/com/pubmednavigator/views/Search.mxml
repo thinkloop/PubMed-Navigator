@@ -3,30 +3,9 @@
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
 		 xmlns:s="library://ns.adobe.com/flex/spark"
 		 xmlns:swiz = "http://swiz.swizframework.org"
-		 xmlns:t="com.thinkloop.flex4components.*"
+		 xmlns:t="com.thinkloop.flex4.components.*"
 
 		 width="100%" height="100%">
-
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-	* * DECLARATIONS
-	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
-
-	<fx:Declarations>
-
-		<!-- swiz -->
-		<swiz:Swiz id="searchSwizConfig" dispatcher="{this}">
-
-			<!-- config -->
-			<swiz:config>
-				<swiz:SwizConfig viewPackages="com.pubmednavigator.search.views" />
-			</swiz:config>
-
-			<!-- beans -->
-			<swiz:beanProviders>
-				{[SearchBeans]}
-			</swiz:beanProviders>
-		</swiz:Swiz>
-	</fx:Declarations>
 
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	* * SCRIPT
@@ -34,11 +13,8 @@
 
 	<fx:Script>
 		<![CDATA[
-			import com.pubmednavigator.search.business.SearchBeans;
-			import com.pubmednavigator.search.business.SearchPresentation;
-			import com.pubmednavigator.search.events.SubmitEvent;
-
-			[Inject] [Bindable] public var presentation:SearchPresentation;
+			import com.pubmednavigator.presenters.SearchPresenter;
+			[Inject] [Bindable] public var presentation:SearchPresenter;
 		]]>
 	</fx:Script>
 
@@ -52,7 +28,7 @@
 	
 	<t:SearchBox id="searchBox"
 				 left="0" right="0" width="100%" height="40"
-				 skinClass="com.pubmednavigator.search.views.skins.SearchBoxSkin"
+				 skinClass="com.pubmednavigator.spark.SearchBoxSkin"
 				 
 				 text="@{presentation.searchBoxText}"
 				 isSearching="{presentation.isSearching}"
@@ -67,7 +43,7 @@
 		
 		<s:SkinnableDataContainer id="searchResults" 
 								  width="100%" 
-								  itemRenderer="com.pubmednavigator.search.views.SearchItemRenderer">
+								  itemRenderer="com.pubmednavigator.spark.SearchItemRenderer">
 			
 			<s:layout>
 				<s:VerticalLayout id="verticalLayout" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0" gap="0" useVirtualLayout="false" />

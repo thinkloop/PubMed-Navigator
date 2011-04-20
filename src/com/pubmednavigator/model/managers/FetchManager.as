@@ -1,30 +1,37 @@
-package com.pubmednavigator.model.fetch {
+package com.pubmednavigator.model.managers {
 
-import com.pubmednavigator.model.pubmed.Pubmed;
-import com.thinkloop.flex4components.CachingArrayCollection;
-import com.thinkloop.flex4components.StringUtil;
+import com.pubmednavigator.model.objects.Pubmed;
+import com.thinkloop.flex4.collections.CachingArrayCollection;
+import com.thinkloop.flex4.utils.StringUtil;
 
 import flash.events.Event;
 
 import mx.events.DynamicEvent;
+import com.pubmednavigator.model.delegates.FetchDelegate;
 
-public class FetchService {
+public class FetchManager {
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// * CONSTANTS
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+//--------------------------------------------------------------------------
+//
+// CONSTANTS
+//
+//--------------------------------------------------------------------------
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// * DEPENDENCIES
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+//--------------------------------------------------------------------------
+//
+// DEPENDENCIES
+//
+//--------------------------------------------------------------------------
 
 	[Inject] public var pubmedFetchDelegate:FetchDelegate;
 	
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// * CONSTRUCTOR
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+//--------------------------------------------------------------------------
+//
+// CONSTRUCTOR
+//
+//--------------------------------------------------------------------------
 
-	public function FetchService() {
+	public function FetchManager() {
 	}
 
 	[PostConstruct]
@@ -39,18 +46,23 @@ public class FetchService {
 		pubmedFetchDelegate.addEventListener(FetchDelegate.PUBMED_FETCH_ERROR, handle_PubmedFetch_Error);				
 	}
 	
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// * PROPERTIES
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+//-------------------------------------------------------------------------- 
+//
+// PROPERTIES
+//
+//-------------------------------------------------------------------------- 
+
 
 	[Bindable] public var pubmedItems:CachingArrayCollection;
 	
 	[Bindable] public var isFetching:Boolean;
 	
 	
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// * METHODS
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+//--------------------------------------------------------------------------
+//
+// METHODS
+//
+//--------------------------------------------------------------------------
 	
 	// fetch
 	public function fetch():void {
@@ -71,26 +83,23 @@ trace('fetch: ' + fetchIDList.join(','));
 	protected function processFetch(pubmedArray:Array):void {
 		isFetching = false;
 		
-trace('processFetch: ' + pubmedArray.length);		
 		for each (var o:Object in pubmedArray) {
 				
-			var currentPubmed:Pubmed = pubmedItems.getItemByID(o.pmID) as Pubmed;
+			var currentPubmed:Pubmed = pubmedItems.cacheGet(o.pmID) as Pubmed;
 			
 			if (currentPubmed) {
-				var newPubmed:Pubmed = new Pubmed();
+				var newPubmed:Pubmed = pubmedItems.cacheGet(o.pmID) as Pubmed;
 				newPubmed.id = currentPubmed.id;
 				newPubmed.description = currentPubmed.description;
 				newPubmed.url = currentPubmed.url;
 				newPubmed.keywords = currentPubmed.keywords;
 				
-				newPubmed.articleTitle = StringUtil.cleanExtraWhiteSpace(o.articleTitle);
-				newPubmed.journalTitle = StringUtil.cleanExtraWhiteSpace(o.journalTitle);
+				newPubmed.articleTitle = StringUtil.cleanAllWhiteSpace(o.articleTitle);
+				newPubmed.journalTitle = StringUtil.cleanAllWhiteSpace(o.journalTitle);
 				newPubmed.year = int(o.year);
-				newPubmed.abstract = StringUtil.cleanExtraWhiteSpace(o.abstract);
-				newPubmed.authors = StringUtil.cleanExtraWhiteSpace(o.authors);
+				newPubmed.abstract = StringUtil.cleanAllWhiteSpace(o.abstract);
+				newPubmed.authors = StringUtil.cleanAllWhiteSpace(o.authors);
 				newPubmed.isFullyPopulated = true;
-				
-				pubmedItems.setItemAt(newPubmed, pubmedItems.getIndexByID(o.pmID));
 			}
 		}
 		
@@ -103,9 +112,11 @@ trace('processFetch: ' + pubmedArray.length);
 	}
 	
 	
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// * HANDLERS
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+//--------------------------------------------------------------------------
+//
+// HANDLERS
+//
+//--------------------------------------------------------------------------
 	
 	// handle pubmed fetch
 	protected function handle_PubmedFetch(e:DynamicEvent):void {
@@ -118,12 +129,6 @@ trace('processFetch: ' + pubmedArray.length);
 		isFetching = false;	
 	}
 	
-	// handle green thread complete
-	protected function handle_greenThreadComplete(e:Event):void {
-trace('handle_greenThreadComplete: ' + e);		
-		fetch();
-	}	
-	
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // * BABY METHODS
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *	
@@ -135,7 +140,7 @@ trace('handle_greenThreadComplete: ' + e);
 				fetchIDList.push(o.id);
 				o.isFullyPopulated = true;
 			}
-			if (fetchIDList.length >= 5) {
+			if (fetchIDList.length >= 4) {
 				break;
 			}
 		}

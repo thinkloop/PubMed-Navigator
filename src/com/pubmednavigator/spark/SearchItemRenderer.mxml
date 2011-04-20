@@ -9,21 +9,22 @@
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.edit.SelectionState;
-			import flashx.textLayout.elements.DivElement;
 			import flashx.textLayout.elements.LinkElement;
 			import flashx.textLayout.elements.ParagraphElement;
 			import flashx.textLayout.elements.SpanElement;
 			import flashx.textLayout.elements.TextFlow;
 			import flashx.textLayout.events.FlowElementMouseEvent;
+			import flashx.textLayout.formats.TextDecoration;
 			import flashx.textLayout.formats.TextLayoutFormat;
 			import flashx.textLayout.operations.ApplyFormatOperation;
 			import flashx.textLayout.operations.CompositeOperation;
 			
-			import mx.events.FlexEvent;
-			
 			protected var abstractLink:LinkElement;
 			protected var abstractSplitTextIndex:int;
 			protected var isLongSpanVisible:Boolean = false;
+
+			protected var textFlow:TextFlow;
+			protected var isTextFlowDirty:Boolean = false;
 			
 			override public function set data(value:Object):void {
 				if (!value) {
@@ -32,7 +33,7 @@
 
 				super.data = value;
 				
-				var textflow:TextFlow = new TextFlow();
+				textFlow = new TextFlow();
 				
 				// year / journal
 				if (value.year > 1700 || value.journalTitle.length > 0) {
@@ -53,7 +54,7 @@
 						p1.addChild(s11);
 					}
 					
-					textflow.addChild(p1);
+					textFlow.addChild(p1);
 				}
 				
 				// article title
@@ -61,17 +62,25 @@
 				
 				var a2:LinkElement = new LinkElement();
 				a2.href = value.url;
-				a2.target = '_blank'
+				a2.target = '_blank';
 				
+				var normalFormat:TextLayoutFormat = new TextLayoutFormat();
+				var hoverFormat:TextLayoutFormat = new TextLayoutFormat();
+				
+				normalFormat.textDecoration = TextDecoration.NONE;
+				hoverFormat.textDecoration = TextDecoration.UNDERLINE;
+				
+				a2.linkNormalFormat = normalFormat;
+				a2.linkHoverFormat = hoverFormat;
+
 				var s2:SpanElement = makeSpan(value.articleTitle);
 				s2.color = 0x1a79d1;
 				s2.fontSize = 20;
 				s2.fontWeight = 'bold';
-				s2.textDecoration = 'none';
 				
 				a2.addChild(s2);
 				p2.addChild(a2);
-				textflow.addChild(p2);	
+				textFlow.addChild(p2);	
 
 				// description
 				if (value.description.length > 0 && value.abstract.length <= 0) {
@@ -91,7 +100,7 @@
 					}					
 					
 					p3.addChild(descriptionSpan);
-					textflow.addChild(p3);
+					textFlow.addChild(p3);
 				}
 				
 				// abstract
@@ -107,7 +116,7 @@
 					toggleAbstractSpan();
 					
 					p4.addChild(abstractLink);
-					textflow.addChild(p4);
+					textFlow.addChild(p4);
 				}			
 				
 				// authors
@@ -120,7 +129,7 @@
 					authorsSpan.fontWeight = 'normal';
 					
 					p5.addChild(authorsSpan);
-					textflow.addChild(p5);	
+					textFlow.addChild(p5);	
 				}
 				
 				// url
@@ -133,12 +142,13 @@
 					urlSpan.fontWeight = 'normal';
 					
 					p6.addChild(urlSpan);
-					textflow.addChild(p6);	
+					textFlow.addChild(p6);	
 				}
 				
 				// set new textflow
-				richEditableText.textFlow = textflow;
-				
+				//richEditableText.textFlow = textflow;
+				isTextFlowDirty = true;
+				invalidateProperties();
 				callLater(highlightKeywords);
 //trace('A: ' + data.id + ' - ' + abstract.maxDisplayedLines + ' - ' + abstract.isTruncated);	
 			}
@@ -194,43 +204,59 @@
 				}
 			}
 			
-
 			// highlight keywords
 			public function highlightKeywords():void {
-				var indexOfKeyword:int = 0;
+				
+				if (data.keywords.length <= 0) {
+					return;
+				}
+				
 				var highlightFormat:TextLayoutFormat = new TextLayoutFormat();
 				highlightFormat.backgroundColor = 0XFFEE66;
 				
 				var compositeFormatOperation:CompositeOperation = new CompositeOperation();
 				
-				for each (var currentKeyword:String in data.keywords) {
-					while((indexOfKeyword = richEditableText.text.toLowerCase().indexOf(currentKeyword, indexOfKeyword)) >= 0) {
-						var operationState:SelectionState = new SelectionState(richEditableText.textFlow, indexOfKeyword, indexOfKeyword + currentKeyword.length);
-						
-						var formatOperation:ApplyFormatOperation = new ApplyFormatOperation(operationState,highlightFormat,null);
-						compositeFormatOperation.addOperation(formatOperation);
-						
-						/*
-						richEditableText.setFormatOfRange(highlightFormat, indexOfKeyword, indexOfKeyword + currentKeyword.length);
-						*/
-						indexOfKeyword++;
-					}
+				var joinedKeywords:String = data.keywords.join('|');
+				var regex:RegExp = new RegExp('(\\b)(' + joinedKeywords + ')(\\b)', 'ig');
+				var val:String = richEditableText.text;
+				var regexResult:Object = regex.exec(val);
+				
+				while (regexResult != null) {
+					var operationState:SelectionState = new SelectionState(richEditableText.textFlow, regexResult['index'], regexResult['index'] + regexResult[0].toString().length);
+					var formatOperation:ApplyFormatOperation = new ApplyFormatOperation(operationState, highlightFormat, null);
+					compositeFormatOperation.addOperation(formatOperation);
+					
+					regexResult = regex.exec(val);
 				}
 				
-				var success:Boolean = compositeFormatOperation.doOperation();
-				if (success) {
+				if (compositeFormatOperation.doOperation()) {
 					richEditableText.textFlow.flowComposer.updateAllControllers();
-				}				
+				}
+				
 			}
 			
 			protected function abstract_clickHandler(event:Event):void {
 				toggleAbstractSpan();
 			}
 			
+			override protected function commitProperties():void {
+				super.commitProperties();
+				
+				if (isTextFlowDirty) {
+					richEditableText.textFlow = textFlow;
+					invalidateDisplayList();
+					isTextFlowDirty = false;
+				}
+			}
+			
 			/*
 			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
 				super.updateDisplayList(unscaledWidth, unscaledHeight);
-				highlightKeywords();
+				
+				if (isTextFlowDirty) {
+					richEditableText.textFlow = textFlow;
+					isTextFlowDirty = false;
+				}
 			}
 			*/
 		]]>

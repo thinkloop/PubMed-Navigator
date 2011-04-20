@@ -3,12 +3,12 @@
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
 			   
-			   xmlns:main="com.pubmednavigator.main.*"
+			   xmlns:www="com.pubmednavigator.www.*"
 			   
-			   width="100%" height="100%"
-			   pageTitle="PubMed Navigator - The fastest way to search PubMed.">
+			   width="100%" height="100%" minWidth="540"
+			   pageTitle="PubMed Navigator - The fastest way to search PubMed." xmlns:views="com.pubmednavigator.views.*">
 	
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+<!--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	* * FONTS
 	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
 	
@@ -17,7 +17,6 @@
 			[Embed(source="/com/pubmednavigator/assets/fonts/copperplategothic_bold.ttf", embedAsCFF=true, fontFamily="copperplategothic_embed", fontWeight="bold", unicodeRange="U+004E,U+0061,U+0076,U+0069,U+0067,U+0074,U+006F,U+0072", mimeType="application/x-font")]
 			public const copperplategothic_embed:Class;
 			
-			import spark.effects.Resize;
 			[Embed(source="/com/pubmednavigator/assets/fonts/tw_cen_mt.ttf", embedAsCFF=true, fontFamily="tw_embed", fontWeight="normal", unicodeRange="englishRange", mimeType="application/x-font")]
 			public const tw_embed:Class;
 			
@@ -26,6 +25,9 @@
 			
 			[Embed(source="/com/pubmednavigator/assets/fonts/tw_cen_mt_bold.ttf", embedAsCFF=true, fontFamily="tw_embed", fontWeight="bold", unicodeRange="englishRange", mimeType="application/x-font")]
 			public const tw_bold_embed:Class;
+			
+			[Embed(source="/com/pubmednavigator/assets/fonts/tw_cen_mt_bold.ttf", embedAsCFF=false, fontFamily="tw_embed", fontWeight="bold", unicodeRange="englishRange", mimeType="application/x-font")]
+			public const tw_bold_embed_nocff:Class;			
 			
 			[Embed(source="/com/pubmednavigator/assets/fonts/myriadpro_regular.otf", embedAsCFF=true, fontFamily="myriadpro_embed", fontWeight="normal", unicodeRange="englishRange", mimeType="application/x-font")]
 			public const myriadpro_embed:Class;
@@ -38,7 +40,7 @@
 		]]>
 	</fx:Script>
 	
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+<!--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	* * GLOBAL STYLES
 	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
 	
@@ -53,7 +55,7 @@
 			font-family: tw_embed;
 
 			/* remove annoying shadows and glows */
-			focus-skin: ClassReference(null);
+			/*focus-skin: ClassReference(null);*/
 			focus-thickness: 0;
 			focus-alpha: 0;
 			drop-shadow-visible: false;			
@@ -91,47 +93,31 @@
 		}
 		
 		s|Button {
-			skin-class: ClassReference('com.thinkloop.flex4components.skins.ButtonSkin');
+			skin-class: ClassReference('com.thinkloop.flex4.components.skins.ButtonSkin');
 		}
 		
 		s|VScrollBar {
-			skin-class: ClassReference('com.thinkloop.flex4components.skins.VScrollBarSkin');
+			skin-class: ClassReference('com.thinkloop.flex4.components.skins.VScrollBarSkin');
 		}		
 		
 		s|TextInput {
-			skin-class: ClassReference('com.thinkloop.flex4components.skins.TextInputSkin');
-		}		
-		
-		mx|ToolTip {
-			font-family:tw_embed; font-size:14;
-			color:#000000; background-color:#fafafa;
-			padding-left:10; padding-right:10;
-			border-style:solid; border-color:#f3306c;
-			drop-shadow-visible:false;
-			
-			corner-radius:0;
+			skin-class: ClassReference('com.thinkloop.flex4.components.skins.TextInputSkin');
 		}
 		
-		/* the main color for a component
-		
-		roll-over-color: #ff0000;
-		*/				
-		/*
-		content-background-color (contentBackgroundColor) – Color of the fill of an item renderer
-		symbol-color (symbolColor) – Color of any symbol of a component. Examples include the check mark of a CheckBox or the arrow of a scroll button
-		selection-color (selectionColor) – The color of text when the component is enabled and has focus
-		focus-color (focusColor) – Color of focus ring when the component is in focus
-		roll-over-color (rollOverColor) – Color of the highlights when the mouse is over the component
-		color – Color of the text
-		text-roll-over-color (textRollOverColor) – Color of the text highlights when the mouse is over the component, used in old MX components.
-		focused-text-selection-color - color of selected (highlighted) text
-		*/
+		mx|ToolTip, .errorTip {
+			fontFamily: 'tw_embed';
+			fontSize: 11;
+			fontWeight: normal;
+			
+			color: #ffffff;
+			backgroundColor: #f3306c;
+			borderColor: #f3306c;
+		}
 	</fx:Style>
-
 	
 <!--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	* * VIEW
 	* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
 	
-	<main:Main width="100%" height="100%" />
+	<views:Main width="100%" height="100%" />
 </s:Application>
