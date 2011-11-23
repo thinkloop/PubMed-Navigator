@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>PubMedNavigator</name>
+	<comment></comment>
+	<projects>
+		<project>as3corelib</project>
+		<project>Google API Flex</project>
+		<project>Swiz</project>
+		<project>ThinkLOOP Flex 4 Components</project>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>com.adobe.flexbuilder.project.flexbuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>com.adobe.flexbuilder.project.flexnature</nature>
+		<nature>com.adobe.flexbuilder.project.actionscriptnature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>bin-debug</name>
+			<type>2</type>
+			<location>D:/Apps/railo_3.1.2.001_resin_3.1.9_express_win_not_bige/webroot/pubmednavigator</location>
+		</link>
+	</linkedResources>
+</projectDescription>
